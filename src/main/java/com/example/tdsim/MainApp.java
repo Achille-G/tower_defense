@@ -1,7 +1,7 @@
 package com.example.tdsim;
 
-import com.example.tdsim.engine.EventType;
 import com.example.tdsim.engine.SimulationEngine;
+import com.example.tdsim.engine.events.EnemySpawnEvent;
 import com.example.tdsim.game.Base;
 import com.example.tdsim.game.GameState;
 import com.example.tdsim.game.Path;
@@ -15,9 +15,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MainApp extends Application {
 
@@ -50,10 +48,7 @@ public class MainApp extends Application {
         SimulationEngine engine = new SimulationEngine();
         GameRenderer renderer = new GameRenderer();
 
-        Map<String, Object> spawnPayload = new HashMap<>();
-        spawnPayload.put("enemyId", "E1");
-
-        engine.schedule(1.0, EventType.ENEMY_SPAWN, spawnPayload);
+        engine.schedule(new EnemySpawnEvent(1.0, engine.nextSequenceNumber(), "E1"));
 
         new AnimationTimer() {
             @Override
