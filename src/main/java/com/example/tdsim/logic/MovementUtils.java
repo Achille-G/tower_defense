@@ -1,5 +1,6 @@
 package com.example.tdsim.logic;
 
+
 import com.example.tdsim.game.Enemy;
 import com.example.tdsim.game.MovementState;
 import javafx.geometry.Point2D;
@@ -21,4 +22,5 @@ public class MovementUtils {
         double y = movement.getFromPoint().getY() + ratio * (movement.getToPoint().getY() - movement.getFromPoint().getY());
         return new Point2D(x,y);
     }
+
 }

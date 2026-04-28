@@ -5,6 +5,7 @@ public class Enemy {
     private final double maxHp;
     private double hp;
     private boolean alive;
+    private boolean dying;
     private int currentWaypointIndex;
     private MovementState movementState;
 
@@ -13,6 +14,7 @@ public class Enemy {
         this.maxHp = maxHp;
         this.hp = maxHp;
         this.alive = true;
+        this.dying = false;
         this.currentWaypointIndex = 0;
         movementState = null;
     }
@@ -33,6 +35,9 @@ public class Enemy {
         return alive;
     }
 
+    public boolean isDying() {
+        return dying;
+    }
     public int getCurrentWaypointIndex() {
         return currentWaypointIndex;
     }
@@ -55,5 +60,9 @@ public class Enemy {
 
     public void setMovementState(MovementState movementState) {
         this.movementState = movementState;
+    }
+
+    public void setDying(boolean dying) {
+        this.dying = dying;
     }
 }
