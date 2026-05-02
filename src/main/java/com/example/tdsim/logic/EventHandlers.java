@@ -7,7 +7,7 @@ import javafx.geometry.Point2D;
 
 public class EventHandlers {
 
-    private static final double SEGMENT_DURATION = 2.0;
+    private static final double ENEMY_SPEED = 40.0; // pixels par seconde
 
     public static void handleEnemySpawn(EnemySpawnEvent event, GameState gameState, SimulationEngine engine) {
         final String enemyId = event.getEnemyId();
@@ -16,12 +16,13 @@ public class EventHandlers {
 
         Point2D waypoint0 = gameState.getPath().getWaypoint(0);
         Point2D waypoint1 = gameState.getPath().getWaypoint(1);
-        MovementState movement = new MovementState(waypoint0, waypoint1, engine.getCurrentTime(), engine.getCurrentTime() + SEGMENT_DURATION);
+        double duration = waypoint0.distance(waypoint1) / ENEMY_SPEED;
+        MovementState movement = new MovementState(waypoint0, waypoint1, engine.getCurrentTime(), engine.getCurrentTime() + duration);
         enemy.setCurrentWaypointIndex(1);
         enemy.setMovementState(movement);
 
         engine.schedule(new EnemyReachWaypointEvent(
-                engine.getCurrentTime() + SEGMENT_DURATION,
+                engine.getCurrentTime() + duration,
                 engine.nextSequenceNumber(),
                 enemyId,
                 enemy.getCurrentWaypointIndex()
@@ -42,19 +43,23 @@ public class EventHandlers {
         }
 
         if (waypointIndex == dernierWaypoint) {
-            MovementState movement = new MovementState(waypoint, gameState.getBase().getPosition(), engine.getCurrentTime(), engine.getCurrentTime() + SEGMENT_DURATION);
+            Point2D basePos = gameState.getBase().getPosition();
+            double duration = waypoint.distance(basePos) / ENEMY_SPEED;
+            MovementState movement = new MovementState(waypoint, basePos, engine.getCurrentTime(), engine.getCurrentTime() + duration);
             enemy.setMovementState(movement);
             engine.schedule(new EnemyReachBaseEvent(
-                    engine.getCurrentTime() + SEGMENT_DURATION,
+                    engine.getCurrentTime() + duration,
                     engine.nextSequenceNumber(),
                     enemyId
             ));
         } else {
-            MovementState movement = new MovementState(waypoint, gameState.getPath().getWaypoint(waypointIndex + 1), engine.getCurrentTime(), engine.getCurrentTime() + SEGMENT_DURATION);
+            Point2D nextWaypoint = gameState.getPath().getWaypoint(waypointIndex + 1);
+            double duration = waypoint.distance(nextWaypoint) / ENEMY_SPEED;
+            MovementState movement = new MovementState(waypoint, nextWaypoint, engine.getCurrentTime(), engine.getCurrentTime() + duration);
             enemy.setCurrentWaypointIndex(waypointIndex + 1);
             enemy.setMovementState(movement);
             engine.schedule(new EnemyReachWaypointEvent(
-                    engine.getCurrentTime() + SEGMENT_DURATION,
+                    engine.getCurrentTime() + duration,
                     engine.nextSequenceNumber(),
                     enemyId,
                     enemy.getCurrentWaypointIndex()
@@ -118,5 +123,17 @@ public class EventHandlers {
         }
         enemy.setAlive(false);
         System.out.printf("Enemy %s died %n",enemyId);
+    }
+
+    public static void handlePlayerSellTower(PlayerSellTowerEvent event, GameState gameState, SimulationEngine engine){
+        final String towerId = event.getTowerId();
+        final Tower tower = gameState.getTowers().get(towerId);
+
+        //revalidation
+        if (tower == null || !tower.isActive()){
+            return;
+        }
+        tower.setActive(false);
+        System.out.printf("Tower %s sold%n", tower.getId() );
     }
 }
